@@ -9,6 +9,7 @@ namespace MyCollection
 {
     public class Node<T>
     {
+        public MyLinkedList<T>? list;
         public T item { get; }
         public Node<T>? next { get; set; }
         public Node<T>? prev { get; set; }

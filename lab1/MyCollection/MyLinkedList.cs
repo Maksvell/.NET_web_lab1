@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MyCollection
 {
@@ -27,13 +29,31 @@ namespace MyCollection
         }
         public bool IsReadOnly => false;
 
+        public event EventHandler<ItemEventArgs<T>>? ItemAdded;
+        public event EventHandler<ItemEventArgs<T>>? ItemRemoved;
+
+        protected virtual void OnItemAdded(Node<T> node, string message)
+        {
+            if(ItemAdded != null)
+            {
+                ItemAdded.Invoke(this, new ItemEventArgs<T>(node.item, message));
+            }
+        }
+        protected virtual void OnItemRemoved(Node<T> node, string message)
+        {
+            if (ItemRemoved != null)
+            {
+                ItemRemoved.Invoke(this, new ItemEventArgs<T>(node.item, message));
+            }
+        }
+
         public MyLinkedList()
         {    
             this.count = 0;
         }
         public MyLinkedList(ICollection<T> collection)
         {
-            if (collection is null)
+            if (collection == null)
             {
                 throw new ArgumentNullException(nameof(collection));
             }
@@ -50,6 +70,10 @@ namespace MyCollection
             if (node == null)
             {
                 throw new ArgumentNullException(nameof(node));
+            }
+            if (node.list != this)
+            {
+                throw new InvalidOperationException("There no such node in this list");
             }
         }
         private void InternalAddNodeToEmptyList(Node<T> node)
@@ -102,6 +126,8 @@ namespace MyCollection
                 node.next.prev = node.prev;
                 node.prev.next = node.next;
             }
+            node.list = null;
+            count--;
         } 
 
         public void Add(T value)
@@ -115,7 +141,6 @@ namespace MyCollection
         }
         public void AddLast(Node<T> node)
         {
-            ValidateNode(node);
             if(head == null)
             {
                 InternalAddNodeToEmptyList(node);
@@ -125,6 +150,8 @@ namespace MyCollection
                 InternalAddNodeAfter(tail!, node);
                 tail = node;
             }
+            OnItemAdded(node, "to tail");
+            node.list = this;
         }
 
         public void AddFirst(T item)
@@ -134,7 +161,6 @@ namespace MyCollection
         }
         public void AddFirst(Node<T> node)
         {
-            ValidateNode(node);
             if (head == null)
             {
                 InternalAddNodeToEmptyList(node);
@@ -144,6 +170,8 @@ namespace MyCollection
                 InternalAddNodeBefore(head!, node);
                 head = node;
             }
+            OnItemAdded(node, "to head");
+            node.list = this;
         }
 
         public void AddAfter(Node<T> node, T item)
@@ -154,12 +182,13 @@ namespace MyCollection
         public void AddAfter(Node<T> node, Node<T> newNode)
         {
             ValidateNode(node);
-            ValidateNode(newNode);
             InternalAddNodeAfter(node!, newNode);
             if(node == tail)
             {
                 tail = newNode;
             }
+            OnItemAdded(newNode, "");
+            newNode.list = this;
         }
 
         public void AddBefore(Node<T> node, T item)
@@ -170,12 +199,13 @@ namespace MyCollection
         public void AddBefore(Node<T> node, Node<T> newNode)
         {
             ValidateNode(node);
-            ValidateNode(newNode);
             InternalAddNodeBefore(node!, newNode);
             if(node == head)
             {
                 head = newNode;
             }
+            OnItemAdded(newNode, "");
+            newNode.list = this;
         }
 
         public bool Remove(T item)
@@ -183,6 +213,7 @@ namespace MyCollection
             Node<T>? node = Find(item);
             if(node != null)
             {
+                OnItemRemoved(node, "");
                 InternalRemoveNode(node);
                 return true;
             }
@@ -192,15 +223,18 @@ namespace MyCollection
         {
             ValidateNode(node);
             InternalRemoveNode(node);
+            OnItemRemoved(node, "");
         }
         public void RemoveFirst()
         {
             if (head == null) { throw new InvalidOperationException("LinkedList is empty"); }
+            OnItemRemoved(head, "from head");
             InternalRemoveNode(head);
         }
         public void RemoveLast()
         {
             if (tail == null) { throw new InvalidOperationException("LinkedList is empty"); }
+            OnItemRemoved(tail, "from tail");
             InternalRemoveNode(tail);
         }
 
@@ -217,7 +251,7 @@ namespace MyCollection
             EqualityComparer<T> c = EqualityComparer<T>.Default;
             if (node != null)
             {
-                while (node.next != null)
+                do
                 {
                     if (c.Equals(node.item, item))
                     {
@@ -225,6 +259,7 @@ namespace MyCollection
                     }
                     node = node.next;
                 }
+                while (node != null);
             }
             return null;
         }
@@ -242,7 +277,7 @@ namespace MyCollection
             Node<T>? node = head;
             if(node != null)
             {
-                while(node.next != null)
+                while(node != null)
                 {
                     array[arrayIndex++] = node.item;
                     node = node.next;
@@ -272,12 +307,12 @@ namespace MyCollection
                 Console.WriteLine("LinkedList is empty");
             else
             {
-                while (node.next != null)
+                Console.WriteLine("LinkedList:");
+                while (node != null)
                 {
                     Console.WriteLine(node.item);
                     node = node.next;
                 }
-                Console.WriteLine(node.item);
             }
         }
     }

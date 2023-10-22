@@ -9,8 +9,9 @@ using System.Xml.Linq;
 
 namespace MyCollection
 {
-    public class MyLinkedList<T> : IEnumerable<T>
+    public class MyLinkedList<T> : ICollection<T>
     {
+         
         internal Node<T>? head;
         internal Node<T>? tail;
         internal int count;
@@ -61,11 +62,10 @@ namespace MyCollection
             foreach (T item in collection)
             {
                 AddLast(item);
-                count++;
             }
         }
 
-        private void ValidateNode(Node<T> node)
+        private void ValidateNode(Node<T>? node)
         {
             if (node == null)
             {
@@ -174,12 +174,12 @@ namespace MyCollection
             node.list = this;
         }
 
-        public void AddAfter(Node<T> node, T item)
+        public void AddAfter(Node<T>? node, T item)
         {
             Node<T> newNode = new Node<T>(item);
             AddAfter(node, newNode);
         }
-        public void AddAfter(Node<T> node, Node<T> newNode)
+        public void AddAfter(Node<T>? node, Node<T> newNode)
         {
             ValidateNode(node);
             InternalAddNodeAfter(node!, newNode);
@@ -191,12 +191,12 @@ namespace MyCollection
             newNode.list = this;
         }
 
-        public void AddBefore(Node<T> node, T item)
+        public void AddBefore(Node<T>? node, T item)
         {
             Node<T> newNode = new Node<T>(item);
             AddBefore(node, newNode);
         }
-        public void AddBefore(Node<T> node, Node<T> newNode)
+        public void AddBefore(Node<T>? node, Node<T> newNode)
         {
             ValidateNode(node);
             InternalAddNodeBefore(node!, newNode);
@@ -219,11 +219,11 @@ namespace MyCollection
             }
             return false;
         }
-        public void Remove(Node<T> node)
+        public void Remove(Node<T>? node)
         {
             ValidateNode(node);
-            InternalRemoveNode(node);
-            OnItemRemoved(node, "");
+            InternalRemoveNode(node!);
+            OnItemRemoved(node!, "");
         }
         public void RemoveFirst()
         {

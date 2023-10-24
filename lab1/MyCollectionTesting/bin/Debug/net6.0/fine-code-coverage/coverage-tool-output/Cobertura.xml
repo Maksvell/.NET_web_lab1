@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage line-rate="0.985428051001822" branch-rate="0.918918918918919" lines-covered="541" lines-valid="549" branches-covered="68" branches-valid="74" complexity="127" version="0" timestamp="1698008661">
+<coverage line-rate="0.985428051001822" branch-rate="0.918918918918919" lines-covered="541" lines-valid="549" branches-covered="68" branches-valid="74" complexity="127" version="0" timestamp="1698168651">
   <sources>
     <source>E:\kpi\.NET_web\lab1\lab1\</source>
     <source>C:\</source>
